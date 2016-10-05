@@ -2,9 +2,11 @@ import java.io.ByteArrayOutputStream
 
 import org.scalatest.{Matchers, WordSpec}
 
-/**
-  * Created by aphex on 10/4/16.
+/** Interpreter Tests
+  *
+  * Some of these tests for command parsing could probably be moved to CommandSpec.
   */
+
 class IntepreterSpec extends WordSpec with Matchers {
 
   "Interpreter" when {
@@ -22,6 +24,10 @@ class IntepreterSpec extends WordSpec with Matchers {
         |show all"""
         .stripMargin.lines.toStream
 
+    val showUnread: Stream[String] =
+      "show unread"
+        .lines.toStream
+
     val addAndShowCommands: Stream[Command] =
       Command("add", "The Grapes of Wrath" :: "John Steinbeck" :: Nil) #::
         Command("add", "Of Mice and Men" :: "John Steinbeck" :: Nil) #::
@@ -33,6 +39,10 @@ class IntepreterSpec extends WordSpec with Matchers {
       Command("read", "Moby Dick" :: Nil) #::
         Command("read", "Of Mice and Men" :: Nil) #::
         Command("show", "all" :: Nil) #::
+        Stream.Empty
+
+    val showUnreadCommand: Stream[Command] =
+      Command("show", "unread" :: Nil) #::
         Stream.Empty
 
     "adding a few books" should {
@@ -62,8 +72,8 @@ class IntepreterSpec extends WordSpec with Matchers {
     "reading books" should {
       "interpret the right read commands" in {
 
-        Interpreter.fromLines(addAndShow ++ readBooks).interpret should
-          contain theSameElementsInOrderAs addAndShowCommands ++ readBooksCommands
+        Interpreter.fromLines(readBooks).interpret should
+          contain theSameElementsInOrderAs readBooksCommands
       }
 
       "show the books in an read state" in {
@@ -79,6 +89,25 @@ class IntepreterSpec extends WordSpec with Matchers {
             |"Of Mice and Men" by John Steinbeck (read)
             |"Moby Dick" by Herman Melville (read)"""
             .stripMargin.lines.toList
+      }
+    }
+
+    "showing unread books" should {
+      "interpret the right show command" in {
+
+        Interpreter.fromLines(showUnread).interpret should
+          contain theSameElementsInOrderAs showUnreadCommand
+      }
+
+      "show the unread book" in {
+        val output = new ByteArrayOutputStream()
+        Console.withOut(output) {
+          Interpreter(addAndShowCommands ++ readBooksCommands ++ showUnreadCommand).interpret
+        }
+
+        output.toString.lines.toList.takeRight(1) should contain theSameElementsInOrderAs
+          """"The Grapes of Wrath" by John Steinbeck (unread)"""
+            .lines.toList
       }
     }
 

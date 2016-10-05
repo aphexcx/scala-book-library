@@ -1,7 +1,7 @@
 import RichStream._
 
 case class Library(books: Map[String, String], read: Set[String]) {
-  def unread: Library = copy(books = books.filterKeys(read.contains))
+  def unread: Library = copy(books = books.filterKeys(!read.contains(_)))
 
   def filterAuthor(author: String): Library = filter(_._2 == author)
 
