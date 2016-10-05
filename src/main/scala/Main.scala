@@ -5,6 +5,7 @@ import scala.collection.immutable.HashMap.HashMap1
 import scala.collection.immutable.Stream.{Cons, Empty}
 import scala.io.StdIn
 
+import RichStream._
 /**
   * The program should accept the following commands:
   * *
@@ -19,19 +20,6 @@ import scala.io.StdIn
 
 
 object Main extends App {
-
-  def evaluatedLength[T](stream: => Stream[T]): Int = {
-    @tailrec
-    def go(s: => Stream[T], acc: Int): Int = s match {
-      case Empty => acc
-      case c: Cons[T] =>
-        if (c.tailDefined)
-          go(c.tail, acc + 1)
-        else
-          acc + 1
-    }
-    go(stream, 0)
-  }
 
   def streamLines: Stream[String] = {
     val line: String = StdIn.readLine()
@@ -86,7 +74,7 @@ object Library {
   def apply(): Library = Library(Map(), Set())
 
   def build(commandStream: Stream[Command]): Library = {
-    commandStream.take(Main.evaluatedLength(commandStream)).foldLeft(Library()) { (library, c) =>
+    commandStream.takeEvaluated.foldLeft(Library()) { (library, c) =>
       c match {
         case Command("add", List(title, author)) => library.copy(books = library.books + (title -> author))
         case Command("read", List(title)) => library.copy(read = library.read + title)
