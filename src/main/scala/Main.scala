@@ -1,11 +1,7 @@
-import scala.annotation.tailrec
-import scala.collection.generic.SeqFactory
-import scala.collection.immutable.HashMap
-import scala.collection.immutable.HashMap.HashMap1
-import scala.collection.immutable.Stream.{Cons, Empty}
+import RichStream._
+
 import scala.io.StdIn
 
-import RichStream._
 /**
   * The program should accept the following commands:
   * *
@@ -18,8 +14,9 @@ import RichStream._
   * quit: quits the program.
   */
 
-
 object Main extends App {
+
+  println("Welcome to your library!")
 
   def streamLines: Stream[String] = {
     val line: String = StdIn.readLine()
@@ -27,12 +24,9 @@ object Main extends App {
     else Stream.cons(line, streamLines)
   }.filter(_.nonEmpty)
 
-  println("Welcome to your library!")
-
-  //  val commandStream = Stream.continually(StdIn.readLine()).filter(_.nonEmpty).map(Command.parse)
-  val commandStream = streamLines.map(Command.parse)
-
   import Library._
+
+  val commandStream = streamLines.map(Command.parse)
 
   commandStream
     .map { c =>
@@ -65,9 +59,9 @@ object Main extends App {
 case class Library(books: Map[String, String], read: Set[String]) {
   def unread: Library = copy(books = books.filterKeys(read.contains))
 
-  def filter(p: ((String, String)) => Boolean): Library = copy(books = books.filter(p))
-
   def filterAuthor(author: String): Library = filter(_._2 == author)
+
+  def filter(p: ((String, String)) => Boolean): Library = copy(books = books.filter(p))
 }
 
 object Library {
