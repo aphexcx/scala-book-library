@@ -7,7 +7,7 @@ case class Interpreter(commandStream: Stream[Command]) {
       .map { c =>
         c match {
           case Command("add", List(title, author)) => println(f"""Added "$title" by $author""") //add title and author to library and set to unread
-          case Command("read", List(title)) => println(f"""You've read "$title!"""") //mark book with this title as read
+          case Command("read", List(title)) => println(f"""You've read "$title"!""") //mark book with this title as read
           case Command("show", args) => args match {
             // all: displays all of the books in the library
             case "all" :: Nil => show(build(commandStream))
