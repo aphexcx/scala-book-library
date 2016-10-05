@@ -25,7 +25,8 @@ class IntepreterSpec extends WordSpec with Matchers {
             |show all """
             .stripMargin.lines.toStream
 
-        Interpreter.fromLines(addAndShow).interpret shouldBe addAndShowCommands
+        Interpreter.fromLines(addAndShow).interpret should
+          contain theSameElementsAs addAndShowCommands
       }
 
       "show the books in an unread state" in {
@@ -34,15 +35,15 @@ class IntepreterSpec extends WordSpec with Matchers {
           Interpreter(addAndShowCommands).interpret
         }
 
-        output.toString.lines.toList shouldBe
+        output.toString.lines.toList should contain theSameElementsAs
           """Added "The Grapes of Wrath" by John Steinbeck
             |Added "Of Mice and Men" by John Steinbeck
             |Added "Moby Dick" by Herman Melville
             |"The Grapes of Wrath" by John Steinbeck (unread)
             |"Of Mice and Men" by John Steinbeck (unread)
-            |"Moby Dick" by Herman Melville (unread)""".stripMargin.lines.toList
+            |"Moby Dick" by Herman Melville (unread)"""
+            .stripMargin.lines.toList
       }
     }
-
   }
 }
