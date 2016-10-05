@@ -48,7 +48,7 @@ object Main extends App {
 
           case _ => println("Did you mean one of \"show (all|unread) [by $author]\" ?")
         }
-        case Command("quit", _) => System.exit(0)
+        case Command("quit", _) => println("Bye!"); System.exit(0)
         case _ => println("BAD COMMAND OR FILE NAME")
       }
       c
