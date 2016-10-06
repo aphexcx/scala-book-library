@@ -9,52 +9,51 @@ import org.scalatest.{Matchers, WordSpec}
 
 class IntepreterSpec extends WordSpec with Matchers {
 
+  val addAndShow: Stream[String] =
+    """add "The Grapes of Wrath" "John Steinbeck"
+      |add "Of Mice and Men" "John Steinbeck"
+      |add "Moby Dick" "Herman Melville"
+      |show all """
+      .stripMargin.lines.toStream
+  val readBooks: Stream[String] =
+    """read "Moby Dick"
+      |read "Of Mice and Men"
+      |show all"""
+      .stripMargin.lines.toStream
+  val showUnread: Stream[String] =
+    "show unread"
+      .lines.toStream
+  val showAllByAuthor: Stream[String] =
+    """show all by "John Steinbeck""""
+      .lines.toStream
+  val showUnreadByAuthor: Stream[String] =
+    """show unread by "John Steinbeck""""
+      .lines.toStream
+
+  val addAndShowCommands: Stream[Command] =
+    Command("add", "The Grapes of Wrath" :: "John Steinbeck" :: Nil) #::
+      Command("add", "Of Mice and Men" :: "John Steinbeck" :: Nil) #::
+      Command("add", "Moby Dick" :: "Herman Melville" :: Nil) #::
+      Command("show", "all" :: Nil) #::
+      Stream.Empty
+  val readBooksCommands: Stream[Command] =
+    Command("read", "Moby Dick" :: Nil) #::
+      Command("read", "Of Mice and Men" :: Nil) #::
+      Command("show", "all" :: Nil) #::
+      Stream.Empty
+  val showUnreadCommand: Stream[Command] =
+    Command("show", "unread" :: Nil) #::
+      Stream.Empty
+  val showAllByAuthorCommands: Stream[Command] =
+    Command("show", "all" :: "by" :: "John Steinbeck" :: Nil) #::
+      Stream.Empty
+  val showUnreadByAuthorCommands: Stream[Command] =
+    Command("show", "unread" :: "by" :: "John Steinbeck" :: Nil) #::
+      Stream.Empty
+
   "Interpreter" when {
 
-    val addAndShow: Stream[String] =
-      """add "The Grapes of Wrath" "John Steinbeck"
-        |add "Of Mice and Men" "John Steinbeck"
-        |add "Moby Dick" "Herman Melville"
-        |show all """
-        .stripMargin.lines.toStream
-    val readBooks: Stream[String] =
-      """read "Moby Dick"
-        |read "Of Mice and Men"
-        |show all"""
-        .stripMargin.lines.toStream
-    val showUnread: Stream[String] =
-      "show unread"
-        .lines.toStream
-    val showAllByAuthor: Stream[String] =
-      """show all by "John Steinbeck""""
-        .lines.toStream
-    val showUnreadByAuthor: Stream[String] =
-      """show unread by "John Steinbeck""""
-        .lines.toStream
-
-    val addAndShowCommands: Stream[Command] =
-      Command("add", "The Grapes of Wrath" :: "John Steinbeck" :: Nil) #::
-        Command("add", "Of Mice and Men" :: "John Steinbeck" :: Nil) #::
-        Command("add", "Moby Dick" :: "Herman Melville" :: Nil) #::
-        Command("show", "all" :: Nil) #::
-        Stream.Empty
-    val readBooksCommands: Stream[Command] =
-      Command("read", "Moby Dick" :: Nil) #::
-        Command("read", "Of Mice and Men" :: Nil) #::
-        Command("show", "all" :: Nil) #::
-        Stream.Empty
-    val showUnreadCommand: Stream[Command] =
-      Command("show", "unread" :: Nil) #::
-        Stream.Empty
-    val showAllByAuthorCommands: Stream[Command] =
-      Command("show", "all" :: "by" :: "John Steinbeck" :: Nil) #::
-        Stream.Empty
-    val showUnreadByAuthorCommands: Stream[Command] =
-      Command("show", "unread" :: "by" :: "John Steinbeck" :: Nil) #::
-        Stream.Empty
-
     "adding a few books" should {
-
       "interpret the right add and show commands" in {
         Interpreter.fromLines(addAndShow).interpret should
           contain theSameElementsInOrderAs addAndShowCommands

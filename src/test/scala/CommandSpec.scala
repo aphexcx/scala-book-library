@@ -17,6 +17,4 @@ class CommandSpec extends FlatSpec with Matchers {
     Command.parse("no \"mr bond\" i expect you \"to die\"") shouldBe
       Command("no", List("mr bond", "i", "expect", "you", "to die"))
   }
-
-
 }
