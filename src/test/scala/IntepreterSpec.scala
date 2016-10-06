@@ -17,15 +17,19 @@ class IntepreterSpec extends WordSpec with Matchers {
         |add "Moby Dick" "Herman Melville"
         |show all """
         .stripMargin.lines.toStream
-
     val readBooks: Stream[String] =
       """read "Moby Dick"
         |read "Of Mice and Men"
         |show all"""
         .stripMargin.lines.toStream
-
     val showUnread: Stream[String] =
       "show unread"
+        .lines.toStream
+    val showAllByAuthor: Stream[String] =
+      """show all by "John Steinbeck""""
+        .lines.toStream
+    val showUnreadByAuthor: Stream[String] =
+      """show unread by "John Steinbeck""""
         .lines.toStream
 
     val addAndShowCommands: Stream[Command] =
@@ -34,15 +38,19 @@ class IntepreterSpec extends WordSpec with Matchers {
         Command("add", "Moby Dick" :: "Herman Melville" :: Nil) #::
         Command("show", "all" :: Nil) #::
         Stream.Empty
-
     val readBooksCommands: Stream[Command] =
       Command("read", "Moby Dick" :: Nil) #::
         Command("read", "Of Mice and Men" :: Nil) #::
         Command("show", "all" :: Nil) #::
         Stream.Empty
-
     val showUnreadCommand: Stream[Command] =
       Command("show", "unread" :: Nil) #::
+        Stream.Empty
+    val showAllByAuthorCommands: Stream[Command] =
+      Command("show", "all" :: "by" :: "John Steinbeck" :: Nil) #::
+        Stream.Empty
+    val showUnreadByAuthorCommands: Stream[Command] =
+      Command("show", "unread" :: "by" :: "John Steinbeck" :: Nil) #::
         Stream.Empty
 
     "adding a few books" should {
@@ -71,7 +79,6 @@ class IntepreterSpec extends WordSpec with Matchers {
 
     "reading books" should {
       "interpret the right read commands" in {
-
         Interpreter.fromLines(readBooks).interpret should
           contain theSameElementsInOrderAs readBooksCommands
       }
@@ -94,7 +101,6 @@ class IntepreterSpec extends WordSpec with Matchers {
 
     "showing unread books" should {
       "interpret the right show command" in {
-
         Interpreter.fromLines(showUnread).interpret should
           contain theSameElementsInOrderAs showUnreadCommand
       }
@@ -109,6 +115,45 @@ class IntepreterSpec extends WordSpec with Matchers {
           """"The Grapes of Wrath" by John Steinbeck (unread)"""
             .lines.toList
       }
+    }
+
+    "showing all books for a specific author" should {
+      "interpret the show all command" in {
+        Interpreter.fromLines(showAllByAuthor).interpret should
+          contain theSameElementsInOrderAs showAllByAuthorCommands
+      }
+
+      "show the correct output" in {
+        val output = new ByteArrayOutputStream()
+        Console.withOut(output) {
+          Interpreter(addAndShowCommands ++ readBooksCommands ++ showAllByAuthorCommands).interpret
+        }
+
+        output.toString.lines.toList.takeRight(3) should contain theSameElementsAs
+          """"The Grapes of Wrath" by John Steinbeck (unread)
+            |"Of Mice and Men" by John Steinbeck (read)
+            |"Moby Dick" by Herman Melville (read)"""
+            .stripMargin.lines.toList
+      }
+    }
+
+    "show unread books for a specific author" should {
+      "interpret the show unread command" in {
+        Interpreter.fromLines(showUnreadByAuthor).interpret should
+          contain theSameElementsInOrderAs showUnreadByAuthorCommands
+      }
+
+      "show the correct output" in {
+        val output = new ByteArrayOutputStream()
+        Console.withOut(output) {
+          Interpreter(addAndShowCommands ++ readBooksCommands ++ showUnreadByAuthorCommands).interpret
+        }
+
+        output.toString.lines.toList.takeRight(1) should contain theSameElementsInOrderAs
+          """"The Grapes of Wrath" by John Steinbeck (unread)"""
+            .lines.toList
+      }
+
     }
 
   }
